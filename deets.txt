@@ -1,0 +1,4 @@
+Dev login:
+https://66-109-22-4.cprapid.com:2083/logout/?locale=en
+user name:nlp
+Password: xJ8eAv53=I95mtoU
