@@ -1,37 +1,75 @@
+import pandas as pd 
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+import stanza
 import spacy
-from spacy.util import minibatch, compounding
 
-nlp = spacy.load("en_core_web_sm")
+# Load input data
+input_df = pd.read_csv("input.csv")
 
-title = "10 things your boss does not want you to know"
+# Load NLP pipelines
+nlp_stanza = stanza.Pipeline("en")
+nlp_spacy = spacy.load("en_core_web_sm") 
 
-intro = """Have you ever wondered what your boss might be hiding from you? In this article, we will uncover the top 10 things that your boss may not want you to know. Whether it's about company policies, work dynamics, or hidden agendas, it's essential to stay informed. Let's dive right in!"""
+# Initialize output DataFrame
+output_df = pd.DataFrame(columns=['Keyword', 'Author Box HTML', 'About HTML'])
 
-key_points = [
-    "The real company financial situation",
-    "Internal office politics and power struggles",
-    "Actual reasons behind key business decisions",
-    "Information about confidential projects and clients",
-    "Insider knowledge about upcoming layoffs or restructurings",
-    "True motives behind sudden changes in company policies",
-    "Hidden conflicts within the management team",
-    "Unspoken expectations for promotions and salary raises",
-    "Sneaky tactics used to keep employees in the dark",
-    "Behind-the-scenes strategies to maintain a competitive edge",
-]
+def extract_keywords(text, nlp_spacy, nlp_stanza):
+  # keyword extraction logic
+  return keywords
 
-def generate_blog_article(title, intro, key_points):
-    article = f"# {title}\n\n"
-    article += intro + "\n\n"
-    for i, point in enumerate(key_points, start=1):
-        article += f"## {i}. {point}\n\n"
-        doc = nlp(point)
-        generated_text = ""
-        for _ in range(3):  # Generate 3 sentences for each key point
-            sentence = " ".join([token.text for token in doc])
-            generated_text += sentence.capitalize() + ". "
-        article += generated_text + "\n\n"
-    return article
 
-blog_article = generate_blog_article(title, intro, key_points)
-print(blog_article)
+def generate_blog_post(keyword, author_voice, blog_type):
+    # Implement blog post generation logic
+    text = f"This is a blog post about {keyword}. {author_voice} The blog type is {blog_type}."
+    
+    # Code to insert the keyword 2.5% of the time
+    word_list = text.split()
+    for i in range(len(word_list)):
+        if random.uniform(0, 1) < 0.025:
+            word_list[i] = keyword
+
+    blog_post = ' '.join(word_list)
+
+    return blog_post
+
+# Extract keywords
+keywords = []
+for text in input_df['Text']:
+  keywords.extend(extract_keywords(text, nlp_stanza, nlp_spacy))
+
+# Generate HTML  
+for keyword in set(keywords):
+  
+  # Author box HTML
+  author_details = input_df['Author Details'].iloc[0] 
+  author_details_with_keyword = f"{author_details} (Expert in {keyword})"
+  
+  author_box = f"""
+  <div>
+   <img src="{input_df['Image URL'].iloc[0]}">
+   <p>{input_df['Author Name'].iloc[0]}</p>
+   <p>{author_details_with_keyword}</p>
+   <p>{input_df['Location'].iloc[0]}</p>
+  </div>
+  """
+  
+  # About section HTML
+  about_html = f"""
+  <div>
+   <h2>About {keyword}</h2>  
+   <p>About {keyword} content</p>
+  </div>
+  """
+    
+  # Add to output DataFrame
+  output_df = output_df.append({
+     'Keyword': keyword,
+     'Author Box HTML': author_box,
+     'About HTML': about_html
+  }, ignore_index=True)
+  
+# Export to CSV
+output_df.to_csv('output.csv', index=False)
+
